@@ -1,28 +1,72 @@
-package teamTemplate;
+package Pucko;
 
-public class Defender extends BasePlayer {
-    // Number of defender
-    public int getNumber() { return 10; }
+import java.awt.Color;
+import hockey.api.GoalKeeper;
+import hockey.api.Player;
+import hockey.api.ITeam;
+import hockey.api.Util;
+import java.lang.Math;
+import java.util.Random;
+import java.util.Base64;
 
-    // Name of defender
-    public String getName() { return "Defender"; }
+public class Defender extends Player {
 
-    // Make left defender left handed, right defender right handed.
-    public boolean isLeftHanded() { return getIndex() == 1; }
+    private int index;
+    private String name;
 
-    // Initiate
-    public void init() {
-	setAimOnStick(false);
+    public Defender(int index, String name) {
+        this.index = index;
+        this.name = name;
     }
 
-    // Defender intelligence
+    public int getNumber() { return 3;}
+    public String getName() { return name; }
+    public boolean isLeftHanded() { return index % 2 == 0; }
+
+    int x;
+    int y;
+    int speed;
+
     public void step() {
-	if (getPuck().isHeld())
-	    skate(getPuck().getHolder(), MAX_SPEED);
-	else
-	    if (getIndex() == 1)
-		skate(-20000, -10000, 1000);
-	    else
-		skate(-20000, 10000, 1000);
+
+    int targetX = -1500;
+    int targetY = 700;
+
+    if(hasPuck()) {
+        if(getX()>1000) {
+            if(getY()>0) shoot(2600, 80, MAX_SHOT_SPEED);
+            else shoot(2600, -80, MAX_SHOT_SPEED);
+        }
+        else {
+        skate(2600, 0, 1000);
+        }
+    }
+    else {
+        if(index % 2==1){
+                x=(int)((getPuck().getX()-2600)/2);
+                y=(int)((getPuck().getY())/2);
+                speed=(int)Math.sqrt(Math.pow(getX()-x,2)+Math.pow(getY()-y,2));
+                skate(x,y,speed);
+                return;
+            }
+
+        setAimOnStick(true);
+        if(getPuck().getX() < -200 || getPuck().getX() > 300) {
+        skate(getPuck(), 1000);
+        }
+        else {
+        int dist = (int)Util.dist(getX() - targetX, getY() - targetY);
+        speed = 200;
+        if(dist > 300) {
+            speed = 1000;
+        }
+        if(index % 2 == 0) {
+            skate(targetX, targetY, speed);
+        }
+        else {
+            skate(targetX, -targetY, speed);
+        }
+        }
+    }
     }
 }
